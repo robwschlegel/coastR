@@ -63,7 +63,7 @@ seq.sites <- function(site_list, coast = NULL){
   site_list$idx <- NULL
   # Relabel order of sites to match new sequential order
   if(!(is.null(site_list$order))) warning("The 'order' column has been overwritten.")
-  site_list$order <- as.integer(1:length(site_list$order))
+  site_list$order <- as.integer(1:nrow(site_list))
   # Order index factor for use with other scripts
   # site_list$index <- reorder(site_list$index, site_list$order)
   return(site_list)
