@@ -3,6 +3,7 @@
 #' This function finds the order of sites along a convoluted but
 #' contiguous coastline. It is not designed to work for multiple
 #' different coastlines at once.
+#'
 #' @param site_list A dataframe with a 'lon' and 'lat' column that
 #' contains coordinates along a coastline that need to be ordered
 #' @param coast An optional set of coastal coordinates supplied by
@@ -10,7 +11,7 @@
 #' @keywords sequential sites
 #' @export
 #' @examples
-#' load("data/site_list_v4.1.Rdata")
+#' load("data/site_list_v4.1.RData")
 #' site_list <- site_list[17:32,]
 #' site_list2 <- seq.sites(site_list)
 
