@@ -9,3 +9,4 @@ A collection of functions and data particularly useful for coastal oceanography.
 
 ## 2017-11-27
 * Bug fixing
+* Tweaking file structure

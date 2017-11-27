@@ -9,14 +9,14 @@
 #' contains coordinates along a coastline that need to be ordered
 #' @param coast An optional set of coastal coordinates supplied by
 #' the user. Defaults to NULL. Currently not supported...
+#' @return A dataframe with the correct ordering of the input sites
 #' @keywords sequential sites
+#' @export
 #' @examples
 #' SACTN_site_list_sub <- SACTN_site_list[17:32,]
-#' SACTN_site_list_ordered <- seqSites(SACTN_site_list_sub)
-#' @return A dataframe with the correct ordering of the input sites
-#' @export
+#' SACTN_site_list_ordered <- seq_sites(SACTN_site_list_sub)
 
-seqSites <- function(site_list, coast = NULL){
+seq_sites <- function(site_list, coast = NULL){
 
   # Check for lon/lat columns
   if(is.null(site_list$lon)) return("Please ensure a 'lon' column is provided.")
