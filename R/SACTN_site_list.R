@@ -3,7 +3,7 @@
 #' A dataset containing the meta-data for the sites found within
 #' the South African Coastal Temperature Network (SACTN).
 #'
-#' @format A data frame with 135 rows and 19S variables:
+#' @format A data frame with 135 rows and 19 variables:
 #' \describe{
 #'   \item{order}{The order of the sites along the coast}
 #'   \item{index}{A unique character vector identifying each site}
@@ -24,6 +24,7 @@
 #'   \item{min}{The minimum temperature in degrees Celsius}
 #'   \item{max}{The maximum temperature in degrees Celsius}
 #'   \item{DT}{The decadal trend in degrees Celsius per decade}
+#'   ...
 #' }
 #' @source \url{https://github.com/ajsmit/SACTN}
 "SACTN_site_list"

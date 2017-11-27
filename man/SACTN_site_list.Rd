@@ -4,7 +4,7 @@
 \name{SACTN_site_list}
 \alias{SACTN_site_list}
 \title{Meta-data for \emph{in situ} collection sites around South Africa.}
-\format{A data frame with 135 rows and 19S variables:
+\format{A data frame with 135 rows and 19 variables:
 \describe{
   \item{order}{The order of the sites along the coast}
   \item{index}{A unique character vector identifying each site}
@@ -25,6 +25,7 @@
   \item{min}{The minimum temperature in degrees Celsius}
   \item{max}{The maximum temperature in degrees Celsius}
   \item{DT}{The decadal trend in degrees Celsius per decade}
+  ...
 }}
 \source{
 \url{https://github.com/ajsmit/SACTN}

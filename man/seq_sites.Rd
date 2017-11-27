@@ -4,14 +4,17 @@
 \alias{seq_sites}
 \title{Sequential coastal site order}
 \usage{
-seq_sites(site_list, coast = NULL)
+seq_sites(site_list, reverse = FALSE, coast = TRUE)
 }
 \arguments{
 \item{site_list}{A dataframe with a 'lon' and 'lat' column that
-contains coordinates along a coastline that need to be ordered}
+contains coordinates along a coastline that need to be ordered.}
+
+\item{reverse}{A boolean TRUE/FALSE to determine if the ordering
+of the sites should be reversed on output. Default = FALSE.}
 
 \item{coast}{An optional set of coastal coordinates supplied by
-the user. Defaults to NULL. Currently not supported...}
+the user. Default = NULL. Currently not supported...}
 }
 \value{
 A dataframe with the correct ordering of the input sites
