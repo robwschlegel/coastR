@@ -108,7 +108,7 @@ plot_sites <- function(site_list, buffer, title_choice){
 }
 ```
 
-### Cape Point, Sout Africa
+### Cape Point, South Africa
 ```{r cape_point_comp}
 cape_point_map <- plot_sites(cape_point, 0.5, 1)
 cape_point_seq_map <- plot_sites(cape_point_seq, 0.5, 2)
