@@ -13,13 +13,16 @@ contains coordinates along a coastline that need to be ordered}
 \item{coast}{An optional set of coastal coordinates supplied by
 the user. Defaults to NULL. Currently not supported...}
 }
+\value{
+A dataframe with the correct ordering of the input sites
+}
 \description{
 This function finds the order of sites along a convoluted but
 contiguous coastline. It is not designed to work for multiple
 different coastlines at once.
 }
 \examples{
-load("data/site_list_v4.1.Rdata")
+load("data/site_list_v4.1.RData")
 site_list <- site_list[17:32,]
 site_list2 <- seq.sites(site_list)
 }

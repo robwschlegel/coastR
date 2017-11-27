@@ -9,12 +9,12 @@
 #' @param coast An optional set of coastal coordinates supplied by
 #' the user. Defaults to NULL. Currently not supported...
 #' @keywords sequential sites
-#' @export
 #' @examples
 #' load("data/site_list_v4.1.RData")
 #' site_list <- site_list[17:32,]
 #' site_list2 <- seq.sites(site_list)
-
+#' @return A dataframe with the correct ordering of the input sites
+#' @export
 
 seq.sites <- function(site_list, coast = NULL){
 
