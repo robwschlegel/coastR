@@ -5,7 +5,7 @@
 #' @keywords degree units
 #' @export
 #' @examples
-#' deg.rad(360)
+#' deg2rad(360)
 
 
-deg.rad <- function(deg) return(deg*pi/180)
+deg2rad <- function(deg) return(deg*pi/180)

@@ -1,15 +1,17 @@
 Package: coastR
 Title: Coastal oceanography in R
-Version: 0.0.1
+Version: 0.0.2
 Date: 2017-11-27
 Authors@R: c(person("Robert W.", "Schlegel", role = c("aut", "cre"),
 	email = "3503570@myuwc.ac.za", comment = "Developer."))
 Maintainer: Robert W. Schlegel <3503570@myuwc.ac.za>
 Description: This package contains a host of functions useful for coastal oceanography.
-Imports: tidyverse,
-  maps,
-  akima,
-  FNN
+Imports:
+    maps,
+    akima,
+    FNN,
+    magrittr,
+    dplyr
 Suggests:
 	knitr,
 	rmarkdown

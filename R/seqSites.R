@@ -4,19 +4,19 @@
 #' contiguous coastline. It is not designed to work for multiple
 #' different coastlines at once.
 #'
+#' @importFrom magrittr %>%
 #' @param site_list A dataframe with a 'lon' and 'lat' column that
 #' contains coordinates along a coastline that need to be ordered
 #' @param coast An optional set of coastal coordinates supplied by
 #' the user. Defaults to NULL. Currently not supported...
 #' @keywords sequential sites
 #' @examples
-#' load("data/site_list_v4.1.RData")
-#' site_list <- site_list[17:32,]
-#' site_list2 <- seq.sites(site_list)
+#' SACTN_site_list_sub <- SACTN_site_list[17:32,]
+#' SACTN_site_list_ordered <- seqSites(SACTN_site_list_sub)
 #' @return A dataframe with the correct ordering of the input sites
 #' @export
 
-seq.sites <- function(site_list, coast = NULL){
+seqSites <- function(site_list, coast = NULL){
 
   # Check for lon/lat columns
   if(is.null(site_list$lon)) return("Please ensure a 'lon' column is provided.")
@@ -54,25 +54,22 @@ seq.sites <- function(site_list, coast = NULL){
   #   coord_cartesian(xlim = c(18, 19), ylim = c(-35, -33))
 
   # Create index of site position along coast
-  idx <- as.vector(FNN::knnx.index(na.omit(as.matrix(cbind(lon2, lat2))),
-                         as.matrix(cbind(site_list$lon,
-                                         site_list$lat)), k = 1))
+  idx <- base::as.vector(FNN::knnx.index(stats::na.omit(as.matrix(base::cbind(lon2, lat2))),
+                                         base::as.matrix(base::cbind(site_list$lon,
+                                                                     site_list$lat)), k = 1))
+  idx_length <- base::length(idx)
+  order <- base::as.integer(1:idx_length)
 
   # Add the index and order
   site_list <- site_list %>%
-    mutate(idx = idx) %>%
-    arrange(desc(idx)) %>%
-    mutate(order = as.integer(1:n())) %>%
-    select(order, everything(), -idx)
+    dplyr::mutate(idx = idx) %>%
+    dplyr::arrange(dplyr::desc(idx)) %>%
+    dplyr::mutate(order = order) %>%
+    dplyr::select(order, dplyr::everything(), -idx)
 
   # Finish
   return(site_list)
 }
-
-# Testing
-# load("data/site_list_v4.1.Rdata")
-# site_list <- site_list[17:32,]
-# site_list2 <- seq.sites(site_list)
 
 ## TO DO
 # Add testing for Gulf of Mexico
