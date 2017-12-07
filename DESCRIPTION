@@ -1,6 +1,6 @@
 Package: coastR
 Title: Coastal oceanography in R
-Version: 0.1.0.9000
+Version: 0.2.0.9000
 Date: 2017-11-27
 Authors@R: person("Robert W.", "Schlegel", role = c("aut", "cre"),
 	email = "wiederweiter@gmail.com", comment = "Developer.")
@@ -15,13 +15,15 @@ Imports:
     dplyr,
     ggplot2,
     FNN,
+    fossil,
     magrittr,
     maps    
 Suggests:
 	knitr,
 	rmarkdown,
+	geosphere,
 	gridExtra
-Depends: R (>= 3.4.2)
+Depends: R (>= 3.4.3)
 License: MIT + file LICENSE
 URL: https://github.com/schrob040/coastR
 Encoding: UTF-8

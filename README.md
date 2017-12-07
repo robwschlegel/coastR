@@ -11,3 +11,6 @@ A collection of functions and data particularly useful for coastal oceanography.
 * Bug fixing
 * Tweaking file structure
 * seq_sites() vignette
+
+## 2017-12-07
+* Added transects() function and vignette

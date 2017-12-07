@@ -2,4 +2,5 @@
 
 export(deg_rad)
 export(seq_sites)
+export(transects)
 importFrom(magrittr,"%>%")

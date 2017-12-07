@@ -13,8 +13,11 @@ contains coordinates along a coastline that need to be ordered.}
 \item{reverse}{A boolean TRUE/FALSE to determine if the ordering
 of the sites should be reversed on output. Default = FALSE.}
 
-\item{coast}{An optional set of coastal coordinates supplied by
-the user. Default = NULL. Currently not supported...}
+\item{coast}{Should only the coastline be used to calculate the
+sequence of sites? Or should islands be included? Note that
+sites located on islands will have their sequence of order
+calculated after sites along the coast. This is generally not a
+desired outcome. Default = TRUE.}
 }
 \value{
 A dataframe with the correct ordering of the input sites

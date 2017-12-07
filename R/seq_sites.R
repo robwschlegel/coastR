@@ -9,8 +9,11 @@
 #' contains coordinates along a coastline that need to be ordered.
 #' @param reverse A boolean TRUE/FALSE to determine if the ordering
 #' of the sites should be reversed on output. Default = FALSE.
-#' @param coast An optional set of coastal coordinates supplied by
-#' the user. Default = NULL. Currently not supported...
+#' @param coast Should only the coastline be used to calculate the
+#' sequence of sites? Or should islands be included? Note that
+#' sites located on islands will have their sequence of order
+#' calculated after sites along the coast. This is generally not a
+#' desired outcome. Default = TRUE.
 #' @return A dataframe with the correct ordering of the input sites
 #' @keywords sequential sites
 #' @export
@@ -24,8 +27,7 @@ seq_sites <- function(site_list, reverse = FALSE, coast = TRUE){
   if(is.null(site_list$lon)) return("Please ensure a 'lon' column is provided.")
   if(is.null(site_list$lat)) return("Please ensure a 'lat' column is provided.")
 
-  # Give a warning message if an order column exists in 'site_list'
-    # as it will be overwritten
+  # Give a warning message if an order column exists in 'site_list' as it will be overwritten
   if(!(is.null(site_list$order))) warning("The 'order' column has been overwritten.")
 
   # Fetch coastline values

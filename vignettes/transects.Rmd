@@ -1,0 +1,166 @@
+---
+title: "Shore-normal transects"
+author: "Robert W. Schlegel"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    fig_caption: yes
+vignette: >
+  %\VignetteIndexEntry{Sequential coastal sites}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>",
+                      fig.height = 3, fig.width = 7)
+```
+
+```{r load-pkg, message=FALSE}
+# devtools::install_github("schrob040/coastR")
+library(coastR)
+library(dplyr)
+library(ggplot2)
+library(gridExtra)
+library(geosphere)
+```
+
+
+## Overview
+There are a number of reasons why one would want to calculate transects along or away from a coastline.
+
+
+## Sample locations
+For this vignette we will use the same coastlines as those created for the sequential sites vignette. The first two dataframes are taken from the SACTN site list included in the `coastR` package. The rest have their lon/lat values grabbed from Google maps. The ordering of the sites is jumbled up here to demonstrate that `transects()` does not require orderly data. Should one want to order the site list before calculating transect headings it is possible to do so with `seq_sites()`.
+
+```{r sample_sites}
+# Cape Point, South Africa
+cape_point <- SACTN_site_list %>% 
+  slice(c(31, 22, 26, 17, 19, 21, 30)) %>% 
+  mutate(order = 1:n())
+
+# South Africa
+south_africa <- SACTN_site_list %>% 
+  slice(c(1,34, 10, 20, 50, 130, 90)) %>% 
+  mutate(order = 1:n())
+
+# Baja Peninsula, Mexico
+baja_pen <- data.frame(
+  order = 1:7,
+  lon = c(-116.4435, -114.6800, -109.6574, -111.9503, -112.2537, -113.7918, -114.1881),
+  lat = c(30.9639, 30.7431, 22.9685, 26.9003, 25.0391, 29.4619, 28.0929)
+)
+
+# Bohai Sea, China
+bohai_sea <- data.frame(
+  order = 1:7,
+  lon = c(122.0963, 121.2723, 121.0687, 121.8742, 120.2962, 117.6650, 122.6380),
+  lat = c(39.0807, 39.0086, 37.7842, 40.7793, 40.0691, 38.4572, 37.4494)
+)
+```
+
+
+## Transects
+With our site lists created we now want to see what the correct headings are for shore-normal transects from these locations.
+
+```{r transects, warning=FALSE}
+# NB: This code will produce warnings
+  # This is fine as it is stating that the
+  # 'order' column has been re-written,
+  # which is the intended result of this function.
+
+# Cape Point, South Africa
+cape_point_along <- transects(cape_point, alongshore = T)
+cape_point_away <- transects(cape_point)
+
+# South Africa
+south_africa_along <- transects(south_africa, alongshore = T)
+south_africa_away <- transects(south_africa)
+
+# Baja Peninsula, Mexico
+baja_pen_along <- transects(baja_pen, alongshore = T)
+baja_pen_away <- transects(baja_pen)
+baja_pen_island <- transects(baja_pen, coast = FALSE)
+
+# Bohai sea, China
+bohai_sea_along <- transects(bohai_sea, alongshore = T)
+bohai_sea_away <- transects(bohai_sea)
+```
+
+
+## Visualise
+Now that the correct headings have been calculated for our shore-normal transects let's visualise them with ggplot.
+
+```{r plot_func}
+# Create base map
+world_map <- ggplot() + 
+  borders(fill = "grey40", colour = "black")
+
+# Create titles
+titles <- c("Alongshore", "Shore-normal", "Islands")
+
+# Plotting function
+plot_sites <- function(site_list, buffer, title_choice, dist){
+  # Find point 200 Km from the site manually to pass to ggplot
+  heading2 <- data.frame(destPoint(p = select(site_list, lon, lat), 
+                                   b = site_list$heading, d = dist))
+  
+  # Add the new coordinates tot he site list
+  site_list <- site_list %>% 
+    mutate(lon_dest = heading2$lon,
+           lat_dest = heading2$lat)
+  
+  # Visualise
+  world_map +
+    geom_segment(data = site_list, colour = "red4", 
+                 aes(x = lon, y = lat, xend = lon_dest, yend = lat_dest)) +
+    geom_point(data = site_list, size = 3, colour = "black", aes(x = lon, y = lat)) +
+    geom_point(data = site_list, size = 3, colour = "red", aes(x = lon_dest, y = lat_dest)) +
+    coord_cartesian(xlim = c(min(site_list$lon - buffer), 
+                             max(site_list$lon + buffer)),
+                    ylim = c(min(site_list$lat - buffer), 
+                             max(site_list$lat + buffer))) +
+    labs(x = "", y = "", colour = "Site\norder") +
+    ggtitle(titles[title_choice])
+}
+```
+
+
+### Cape Point, South Africa
+```{r cape_point_trans}
+cape_point_along_map <- plot_sites(cape_point_along, 0.5, 1, 10000)
+cape_point_away_map <- plot_sites(cape_point_away, 0.5, 2, 10000)
+grid.arrange(cape_point_along_map, cape_point_away_map, nrow = 1)
+```
+
+### South Africa
+```{r south_africa_comp}
+south_africa_along_map <- plot_sites(south_africa_along, 1, 1, 100000)
+south_africa_away_map <- plot_sites(south_africa_away, 1, 2, 100000)
+grid.arrange(south_africa_along_map, south_africa_away_map, nrow = 1)
+```
+
+
+### Baja Peninsula, Mexico
+Note in the image below that site seven in the 'Islands' panel appears to be ordered incorrectly. This is because we have asked the function to first look for sites along the coast, and then order sites around nearby islands by setting the argument `coast` to TRUE. This is because the algorithm only works on one continuous line. When islands are introduced this then represents a second set of 1D coordinates and so the algorithm plans accordingly. This feature has been added so that if one chooses to have islands be apart from the initial ordering of the coastal sites it may be done. The default however is to remove islands from the coastal land mask so that they are ordered according to their nearest location to the coast.
+
+```{r baja_pen_comp}
+baja_pen_along_map <- plot_sites(baja_pen_along, 1, 1, 100000)
+baja_pen_away_map <- plot_sites(baja_pen_away, 1, 2, 100000)
+baja_pen_island_map <- plot_sites(baja_pen_island, 1, 3, 100000)
+grid.arrange(baja_pen_along_map, baja_pen_away_map, baja_pen_island_map, nrow = 1)
+```
+
+
+### Bohai Sea, China
+Below in the 'Sequential' panel we see the result of having set the `reverse` argument to TRUE. Hardly noticeable, but potentially useful.
+
+```{r bohai_sea_comp}
+bohai_sea_along_map <- plot_sites(bohai_sea_along, 1, 1, 70000)
+bohai_sea_away_map <- plot_sites(bohai_sea_away, 1, 2, 70000)
+grid.arrange(bohai_sea_along_map, bohai_sea_away_map, nrow = 1)
+```
+
+
+## Conclusion
+The usefulness of the `seq_sites()` function is demonstrated above on a number of different scales and coastal features. This is in no way an exhaustive test of this function and I welcome any input from anyone that uses it for their own work. The premise on which this function operates is very basic and so theoretically it should be very adaptive. The only thing to look out for is if one has a very convoluted coastline with a long stretch without any sites the algorithm may think this is two separate coastlines.
