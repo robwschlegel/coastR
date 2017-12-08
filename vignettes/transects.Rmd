@@ -27,11 +27,11 @@ library(geosphere)
 
 
 ## Overview
-There are a number of reasons why one would want to calculate transects along or away from a coastline.
+There are a number of reasons why one would want to calculate transects along or away from a coastline. Examples include: finding the fetch across an embayment, finding the coordinates of a point 200 km from the coast, finding the appropriate series of SST pixels along/away from the coast, (or if one is feeling particulary feisty) the creation of shape files for a given area away from the coast. The function that we will be introducing here does none of these things. What the `transects()` function does do is calculate the angle of the heading along or away from the coast against true North, which is then the basis for all of the other fancy things one may want to do. Baby steps people. Baby steps.
 
 
 ## Sample locations
-For this vignette we will use the same coastlines as those created for the sequential sites vignette. The first two dataframes are taken from the SACTN site list included in the `coastR` package. The rest have their lon/lat values grabbed from Google maps. The ordering of the sites is jumbled up here to demonstrate that `transects()` does not require orderly data. Should one want to order the site list before calculating transect headings it is possible to do so with `seq_sites()`.
+For this vignette we will re-use the same coastlines as those created for the sequential sites vignette. The ordering of the sites remains jumbled up to demonstrate that `transects()` does not require orderly data. Should one want to order ones site list before calculating transect headings it is possible to do so with `seq_sites()`. This is of course a reccomended step in any workflow.
 
 ```{r sample_sites}
 # Cape Point, South Africa
@@ -61,14 +61,9 @@ bohai_sea <- data.frame(
 
 
 ## Transects
-With our site lists created we now want to see what the correct headings are for shore-normal transects from these locations.
+With our site lists created we now want to see what the correct headings for alongshore and shore-normal transects are for our sites. We will also demonstrate what happens when we increase the `spread` used in the calculation and also how the inclusion of island masks affects the angle of the headings.
 
 ```{r transects, warning=FALSE}
-# NB: This code will produce warnings
-  # This is fine as it is stating that the
-  # 'order' column has been re-written,
-  # which is the intended result of this function.
-
 # Cape Point, South Africa
 cape_point_along <- transects(cape_point, alongshore = T)
 cape_point_away <- transects(cape_point)
@@ -76,10 +71,14 @@ cape_point_away <- transects(cape_point)
 # South Africa
 south_africa_along <- transects(south_africa, alongshore = T)
 south_africa_away <- transects(south_africa)
+  # NB: Note here the use of the `spread` argument
+south_africa_along_wide <- transects(south_africa, alongshore = T, spread = 30)
+south_africa_away_wide <- transects(south_africa, spread = 30)
 
 # Baja Peninsula, Mexico
 baja_pen_along <- transects(baja_pen, alongshore = T)
 baja_pen_away <- transects(baja_pen)
+  # NB: Note here the use of the `coast` argument
 baja_pen_island <- transects(baja_pen, coast = FALSE)
 
 # Bohai sea, China
@@ -89,7 +88,7 @@ bohai_sea_away <- transects(bohai_sea)
 
 
 ## Visualise
-Now that the correct headings have been calculated for our shore-normal transects let's visualise them with ggplot.
+Now that the correct headings have been calculated for our alongshore and shore-normal transects let's visualise them with ggplot. First we will create a function that does this in order to keep the length of this vignette down.
 
 ```{r plot_func}
 # Create base map
@@ -101,9 +100,10 @@ titles <- c("Alongshore", "Shore-normal", "Islands")
 
 # Plotting function
 plot_sites <- function(site_list, buffer, title_choice, dist){
-  # Find point 200 Km from the site manually to pass to ggplot
-  heading2 <- data.frame(destPoint(p = select(site_list, lon, lat), 
-                                   b = site_list$heading, d = dist))
+  
+  # Find the point 200 km from the site manually to pass to ggplot
+  heading2 <- data.frame(geosphere::destPoint(p = select(site_list, lon, lat),  
+                                              b = site_list$heading, d = dist))
   
   # Add the new coordinates tot he site list
   site_list <- site_list %>% 
@@ -127,22 +127,30 @@ plot_sites <- function(site_list, buffer, title_choice, dist){
 
 
 ### Cape Point, South Africa
+The `transect()` function is designed to work well at small scales by default. We may see this here with the effortlesness of plotting transects around a peninsula and then across an embayment in one go.
+
 ```{r cape_point_trans}
 cape_point_along_map <- plot_sites(cape_point_along, 0.5, 1, 10000)
 cape_point_away_map <- plot_sites(cape_point_away, 0.5, 2, 10000)
 grid.arrange(cape_point_along_map, cape_point_away_map, nrow = 1)
 ```
 
+
 ### South Africa
-```{r south_africa_comp}
+The intentions one may have for calculating shore-normal transects will differ depending on ones research question. If one is interested in visualising the convolutions of a coastline at a sub-meso-scale then the default `spread` of the `transect()` function is probably the way to go, as shown above. If however one is interested in seeing the shore-normal transects broadly for the coastline of an entire country it is likely that one will want to greatly expand the `spread` of coastline used to calculate said transects. In the figure below we may see how changing the `spread` of the coastline considered for the transects changes the results. The top row shows the transects resulting from the narrow default `spread`, while the bottom row shows the results of using a much wider `spread` for the calculation. Note particularly how the transect changes at St. Helena Bay and Gansbaai (second and fourth sites from the top left), as well as a general smoothing of all of the other transects. This is due to the sensitivity of the function. The St. Helena Bay and Gansbaai sites lay within embayments; therefore, the shore-normal transects that would come out directly from these sites will not follow the general contour of the coastline of South Africa. Should we be interested in the "bigger picture" we must increase the `spread` argument in `transects()`. This may require some trial and error for particularly difficult coastlines before a satisfactory result is produced, but it is certainly still faster than running the calculations by hand. Should small scale accuracy along part of the coast, and broader accuracy elsewhere be required, one must simply divide the site list into the different sections and run `transects()` on each subset with the desired `spread`. 
+
+```{r south_africa_comp, fig.height=6, fig.width=9}
 south_africa_along_map <- plot_sites(south_africa_along, 1, 1, 100000)
 south_africa_away_map <- plot_sites(south_africa_away, 1, 2, 100000)
-grid.arrange(south_africa_along_map, south_africa_away_map, nrow = 1)
+south_africa_along_wide_map <- plot_sites(south_africa_along_wide, 1, 1, 100000)
+south_africa_away_wide_map <- plot_sites(south_africa_away_wide, 1, 2, 100000)
+grid.arrange(south_africa_along_map, south_africa_away_map, 
+             south_africa_along_wide_map, south_africa_away_wide_map, nrow = 2)
 ```
 
 
 ### Baja Peninsula, Mexico
-Note in the image below that site seven in the 'Islands' panel appears to be ordered incorrectly. This is because we have asked the function to first look for sites along the coast, and then order sites around nearby islands by setting the argument `coast` to TRUE. This is because the algorithm only works on one continuous line. When islands are introduced this then represents a second set of 1D coordinates and so the algorithm plans accordingly. This feature has been added so that if one chooses to have islands be apart from the initial ordering of the coastal sites it may be done. The default however is to remove islands from the coastal land mask so that they are ordered according to their nearest location to the coast.
+In the following figure we see how the inclusion of islands affects the results of our transects. The first site up from the tip of the peninsula on the lefthand side is on an island. Note the minor adjustment to the transect when the island mask is used for the calculation. In this case it's not large, but in other instances it may be massive. By deafult island masks are removed and it is our advice that they not be used unless extreme caution is observed.
 
 ```{r baja_pen_comp}
 baja_pen_along_map <- plot_sites(baja_pen_along, 1, 1, 100000)
@@ -153,7 +161,7 @@ grid.arrange(baja_pen_along_map, baja_pen_away_map, baja_pen_island_map, nrow = 
 
 
 ### Bohai Sea, China
-Below in the 'Sequential' panel we see the result of having set the `reverse` argument to TRUE. Hardly noticeable, but potentially useful.
+This figure serves as a good visualisation for just how localised the coastline is that is used to calculate the shore-normal transects. Note how the alongshore transects look a little dodgey, but when shown as shore-normal transects everything works out. This is something to consider if one is interested in calculating alongshore transects rather than shore-normal transects. For alongshore transects that show more fidelity for coastal direction it is advisable to increase the `spread` argument.
 
 ```{r bohai_sea_comp}
 bohai_sea_along_map <- plot_sites(bohai_sea_along, 1, 1, 70000)
@@ -163,4 +171,6 @@ grid.arrange(bohai_sea_along_map, bohai_sea_away_map, nrow = 1)
 
 
 ## Conclusion
-The usefulness of the `seq_sites()` function is demonstrated above on a number of different scales and coastal features. This is in no way an exhaustive test of this function and I welcome any input from anyone that uses it for their own work. The premise on which this function operates is very basic and so theoretically it should be very adaptive. The only thing to look out for is if one has a very convoluted coastline with a long stretch without any sites the algorithm may think this is two separate coastlines.
+As we may see in the previous example figures, the `transect()` function tends to work better by default at smaller scales. This was an intentional decision as it is much more accurate when scaling the function up for larger coastal features than when scaling it down for smaller ones. 
+
+The calculation of the heading for alongshore and shore-normal transects is rarely the end goal itself. One then generally wants to find specific points from the coastline along the transects that have been determined. This is done in the code above within the `plot_sites()` function created within this vignette, but the process is not detailed specifically. How to do more elaborate things with transects will be explained with the following functions to be added to `coastR`. This will include how to draw coastal polygons based on distance and bathymetry.
